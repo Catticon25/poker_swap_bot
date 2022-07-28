@@ -10,9 +10,9 @@ from messages import *
 from constants import *
 from game import Game
 from logs import logger
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 
-load_dotenv()
+#load_dotenv()
 client = discord.Client()
 games={}
 
