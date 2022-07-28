@@ -14,13 +14,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 client = discord.Client()
-game=Game()
+games={}
 
 
 async def start_delay_msg(message):
    """Executed when $start command is run, but not all players are 'ready'"""
    logger.info("Start delay message")
    await asyncio.sleep(START_DELAY*60)
+   game=games[message.channel.id]
    if not game.has_started:
       game.has_started=True
       game.index=0
@@ -32,6 +33,7 @@ async def start_force_play_timeout(message):
    """Executed when $cards command is run, it forces a winner after some time has passed"""
    logger.info("Start force play timeout")
    await asyncio.sleep(FORCE_PLAY_DELAY*60)
+   game=games[message.channel.id]
    if game.winner is None:
       # Check if players have folded
       active_players=[player for player in game.players if player.active]
@@ -53,9 +55,6 @@ async def start_force_play_timeout(message):
 async def on_ready():
     """on_ready discord event"""
     logger.info('We have logged in as {0.user}'.format(client))
-    game.restart_hands()
-    game.index=0
-    game.create_test_player()
     
 
 @client.event
@@ -67,7 +66,12 @@ async def on_message(message):
       elif message.author == client.user:
          return
 
+      # Create game
+      if message.channel.id not in games:
+         games[message.channel.id]=Game()
+
       players_name=message.author.name
+      game=games[message.channel.id]
       ##### START #####
       if message.content.startswith('$start'):
          await game.start(message, client, start_delay_msg, 

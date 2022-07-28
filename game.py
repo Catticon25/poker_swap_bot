@@ -28,6 +28,7 @@ class Game:
       self.winner=None
       self.task_delay=None
       self.task_st_force=None
+      self.restart_hands()
 
 
     def restart_game(self):
